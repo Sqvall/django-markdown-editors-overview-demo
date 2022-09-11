@@ -22,7 +22,7 @@ make initialize
 Or use `long way`:
 
 ```shell
-cat ${PWD}/.env.example > .env
+cp .env.example .env # or copy manually .env.example to .env
 docker-compose up --build -d
 docker-compose exec app python manage.py makemigrations --noinput
 docker-compose exec app python manage.py migrate --noinput
@@ -40,7 +40,7 @@ And you see selected markdown editor interface - `enjoy and experiment with conf
 
 ### Notes
 
-- If you need get access for you uploaded files, your can open http://localhost:49001 
-for access to `minio` with _username:_ `SomeKeyID` and _password:_ `SomeSecretKey`.
+- If you need get access for you uploaded files, your can open http://localhost:49001
+  for access to `minio` with _username:_ `SomeKeyID` and _password:_ `SomeSecretKey`.
 - I made some edits with upload methods, because it not work
-_from stock_ (from libs docs), you can see this changes in `src.config.uploader_views.py`
+  _from stock_ (from libs docs), you can see this changes in `src.config.uploader_views.py`

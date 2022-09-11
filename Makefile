@@ -35,10 +35,10 @@ collectstatic: ## collectstatic
 createsuperuser: ## createsuperuser
 	${DC} ${EXEC_MANAGE} createsuperuser --noinput &> /dev/null || true
 
-env: ## create env file from .env.example
-	cat ${PWD}/.env.example > .env
+env-cp: ## create env file from .env.example
+	cp .env.example .env
 
-initialize: env build up makemigrations migrate createsuperuser
+initialize: env-cp build up makemigrations migrate createsuperuser
 	printf "user: admin\npassword: admin\nhref: http://localhost:8080/admin\n"
 
 logs:  ## show logs for app container
