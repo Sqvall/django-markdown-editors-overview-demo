@@ -1,0 +1,50 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      network: host
+      target: app
+    command:
+      bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8080'
+    volumes:
+      - ./src:/app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - minio
+
+  postgres:
+    image: postgres:14-alpine
+    expose:
+      - "5432"
+    env_file:
+      - .env
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2022-09-07T22-25-02Z
+    command: server --console-address ":9001" /data
+    ports:
+      - "49000:9000"
+      - "49001:9001"
+    environment:
+      MINIO_ROOT_USER: $S3_ACCESS_KEY_ID
+      MINIO_ROOT_PASSWORD: $S3_SECRET_KEY
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 ${S3_ACCESS_KEY_ID} ${S3_SECRET_KEY};
+      /usr/bin/mc rm -r --force myminio/${S3_BUCKET_NAME};
+      /usr/bin/mc mb myminio/${S3_BUCKET_NAME};
+      /usr/bin/mc policy set public myminio/${S3_BUCKET_NAME};
+      exit 0;
+      "
